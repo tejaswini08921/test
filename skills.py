@@ -1,0 +1,57 @@
+import pandas as pd
+
+def find_jobs_by_skill(skills_input, data_path='merged_data.csv'):
+    """
+    Finds job titles that mention any of the specified skills in the 'skills' column.
+
+    Args:
+        skills_input (str): A comma-separated string of skills to search for (case-insensitive).
+        data_path (str): Path to the CSV file containing job data.
+
+    Returns:
+        list: A list of unique job titles that contain at least one of the specified skills.
+    """
+    try:
+        merged_data = pd.read_csv(data_path)
+    except FileNotFoundError:
+        print(f"Error: Could not find data file at: {data_path}")
+        return []
+
+    # Ensure the 'skills' column exists
+    if 'skills' not in merged_data.columns:
+        print("Error: 'skills' column not found in the data.")
+        return []
+
+    # Split the input string into a list of skills and strip whitespace
+    search_skills = [skill.lower().strip() for skill in skills_input.split(',')]
+
+    # Initialize an empty list to store matching job titles
+    matching_jobs = set()
+
+    # Iterate through each skill in the search list
+    for skill in search_skills:
+        # Filter rows where the 'skills' column contains the current skill
+        jobs_with_skill = merged_data[merged_data['skills'].str.lower().str.contains(skill, na=False)]
+
+        # Add the unique job titles from the filtered data to the set
+        matching_jobs.update(jobs_with_skill['job_title'].unique())
+
+    return sorted(list(matching_jobs))
+
+if __name__ == '__main__':
+    data_path = 'merged_data.csv'  # Assuming merged_data.csv is in the same directory
+
+    while True:
+        user_skills_input = input("Enter one or more skills (comma-separated) to find related jobs (or 'exit' to quit): ")
+        if user_skills_input.lower() == 'exit':
+            break
+
+        related_jobs = find_jobs_by_skill(user_skills_input)
+
+        if related_jobs:
+            print(f"\nJobs mentioning any of the skills: '{user_skills_input}':")
+            for job in related_jobs:
+                print(f"- {job}")
+        else:
+            print(f"\nNo jobs found mentioning any of the skills: '{user_skills_input}'.")
+        print("\n")
