@@ -15,10 +15,8 @@ def find_jobs_by_skill(skills_input, data_path='merged_data.csv'):
     
     matching_jobs = set()
     for skill in search_skills:
-        # Filter rows where the 'skills' column contains the current skill
         jobs_with_skill = merged_data[merged_data['skills'].str.lower().str.contains(skill, na=False)]
 
-        # Add the unique job titles from the filtered data to the set
         matching_jobs.update(jobs_with_skill['job_title'].unique())
 
     return sorted(list(matching_jobs))
