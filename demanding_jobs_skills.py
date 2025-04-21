@@ -2,19 +2,6 @@ import pandas as pd
 from collections import Counter
 
 def get_demanding_data_by_sector(sector, data_path='merged_data.csv', top_n=10):
-    """
-    Analyzes job data to find the most demanding jobs and skills within a specific sector.
-
-    Args:
-        sector (str): The sector to filter by (case-insensitive).
-        data_path (str): Path to the CSV file containing job data.
-        top_n (int): The number of top demanding jobs and skills to return.
-
-    Returns:
-        tuple: A tuple containing two dictionaries:
-            - top_demanding_jobs: Dictionary of top N job titles and their frequencies.
-            - top_demanding_skills: Dictionary of top N skills and their frequencies.
-    """
     try:
         merged_data = pd.read_csv(data_path)
     except FileNotFoundError:
