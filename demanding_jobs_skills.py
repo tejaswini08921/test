@@ -29,7 +29,7 @@ def get_demanding_data_by_sector(sector, data_path='merged_data.csv', top_n=10):
     return job_title_counts, top_demanding_skills
 
 if __name__ == '__main__':
-    data_path = 'merged_data.csv'  # Assuming merged_data.csv is in the same directory
+    data_path = 'merged_data.csv'  
     try:
         merged_df = pd.read_csv(data_path)
         unique_sectors = sorted(merged_df['Sector'].unique())
