@@ -11,12 +11,10 @@ nltk.download('stopwords', quiet=True)
 nltk.download('punkt_tab', quiet=True)
 stop_words = set(stopwords.words('english'))
 
-# File paths
 linkedin_path = "C:/Users/Lenovo/Desktop/CN datasets/cleaned_jobs_data.csv"
 swetha_path = "C:/Users/Lenovo/Desktop/CN datasets/2025data.csv"
 output_file = 'merged_data.csv'
 
-# Load DataFrames
 try:
     df_linkedin = pd.read_csv(linkedin_path)
     df_swetha = pd.read_csv(swetha_path)
@@ -24,33 +22,26 @@ except FileNotFoundError as e:
     print(f"Error loading a CSV dataset: {e}")
     exit()
 
-# Standardize job title and skill column names
 df_swetha = df_swetha.rename(columns={'Job Title': 'job_title', 'Skills': 'swetha_skills'})
 df_linkedin = df_linkedin.rename(columns={'job_skills': 'linkedin_skills'})
 
-# Select relevant columns and standardize job title case
 df_swetha_cleaned = df_swetha[['job_title', 'swetha_skills']].copy()
 df_linkedin_cleaned = df_linkedin[['job_title', 'linkedin_skills']].copy()
 
 df_swetha_cleaned['job_title'] = df_swetha_cleaned['job_title'].astype(str).str.lower()
 df_linkedin_cleaned['job_title'] = df_linkedin_cleaned['job_title'].astype(str).str.lower()
 
-# Merge DataFrames
 merged_df = pd.concat([df_swetha_cleaned, df_linkedin_cleaned], ignore_index=True, sort=False)
 print(f"Total rows after initial merge: {len(merged_df)}")
 
-# Remove duplicates based on job title, keeping the first occurrence
 merged_df.drop_duplicates(subset=['job_title'], keep='first', inplace=True)
 print(f"Total rows after deduplication (based on job title): {len(merged_df)}")
 
-# Create a 'skills' column by combining 'swetha_skills' and 'linkedin_skills'
 merged_df['skills'] = merged_df['swetha_skills'].fillna('') + ', ' + merged_df['linkedin_skills'].fillna('')
 merged_df['skills'] = merged_df['skills'].str.strip(', ').replace(r', , ', ', ', regex=True)
 
-# Drop the temporary skill columns
 merged_df.drop(columns=['swetha_skills', 'linkedin_skills'], errors='ignore', inplace=True)
 
-# Define sector inference function
 def infer_sector_from_title(title):
     title = str(title).lower()
     if re.search(r'software|engineer|developer|programmer|tech|it|cloud|data science|ai|machine learning|cybersecurity|\.net', title) and not re.search(r'(?<!medical\s)nurse|(?<!home\s)health|rn|lpn|cna|medical assistant|therapist|psychologist', title):
@@ -97,15 +88,12 @@ def infer_sector_from_title(title):
         return 'Non-profit/Volunteer'
     return 'Other'
 
-# Add sector column
 merged_df['Sector'] = merged_df['job_title'].apply(infer_sector_from_title)
 print("Sector column added to the merged DataFrame.")
 
-# Save the merged data to 'merged_data.csv'
 merged_df.to_csv(output_file, index=False)
 print(f"\nMerged data with job_title, skills, and sector (from CSVs only) saved to '{output_file}'")
 
-# --- Further Analysis (Optional) ---
 print("\nFirst 5 rows of the merged data:")
 print(merged_df.head())
 
